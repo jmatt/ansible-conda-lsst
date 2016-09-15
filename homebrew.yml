@@ -1,0 +1,25 @@
+---
+
+- hosts: osx
+  remote_user: square
+  gather_facts: yes
+  vars:
+    brew_prefix: "/usr/local"
+    brew_update: yes
+    brew_cask_doctor: no
+    brew_install_packages:
+      - tmux # dev
+      - xz
+      - python
+      - pkgconfig
+      - pcre
+      - cmake
+      - wget
+      - emacs
+      - gcc
+      - git-lfs
+      - jenv
+    brew_cask_install_packages:
+      - java
+  roles:
+    - { role: brew }

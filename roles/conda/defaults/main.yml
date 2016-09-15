@@ -1,0 +1,5 @@
+---
+
+conda_lsst_dest: "~/dev/conda-lsst"
+conda_lsst_build_number: 2164
+conda_lsst_products: "deploy_testing_distrib"

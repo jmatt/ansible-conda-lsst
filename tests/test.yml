@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  remote_user: root
+  vars:
+    brew_prefix: "/usr/local"
+    brew_update: yes
+    brew_cask_doctor: no
+    brew_install_packages:
+      - wget
+  roles:
+    - ../roles/brew
+    - ../roles/conda

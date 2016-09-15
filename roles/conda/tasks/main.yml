@@ -1,0 +1,36 @@
+---
+
+- name: "Clean conda-lsst repository."
+  file:
+    path: "{{ conda_lsst_dest }}"
+    state: absent
+  when: "{{ conda_lsst_clean|default(no) }}"
+
+- name: "Clone the conda-lsst repository."
+  git:
+    repo: https://github.com/jmatt/conda-lsst.git
+    dest: "{{ conda_lsst_dest }}"
+    update: yes
+    version: "{{ conda_lsst_version }}"
+    force: yes
+
+- name: "Execute bootstrap.sh."
+  shell: "/bin/bash {{ conda_lsst_dest }}/bin/bootstrap.sh"
+  args:
+    chdir: "{{ conda_lsst_dest }}"
+  environment:
+    CONDA_LSST_OLD_SWIG: "{{ conda_lsst_old_swig|default('') }}"
+
+- name: "Execute conda clean --lock."
+  shell: "{{ conda_lsst_dest }}/miniconda/bin/conda clean --lock"
+  args:
+    chdir: "{{ conda_lsst_dest }}"
+  environment:
+    PATH: "{{ conda_lsst_dest }}/bin:{{ conda_lsst_dest }}/miniconda/bin:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+- name: "Execute conda lsst make-recipes."
+  shell: "{{ conda_lsst_dest }}/miniconda/bin/conda lsst make-recipes build:{{ conda_lsst_build }} {{ conda_lsst_products }} --build"
+  args:
+    chdir: "{{ conda_lsst_dest }}"
+  environment:
+    PATH: "{{ conda_lsst_dest }}/bin:{{ conda_lsst_dest }}/miniconda/bin:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
