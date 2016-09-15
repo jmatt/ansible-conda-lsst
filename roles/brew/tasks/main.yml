@@ -1,0 +1,75 @@
+---
+
+- name: Create the Homebrew directory.
+  file:
+    path: "{{ brew_prefix }}"
+    state: "directory"
+    owner: "{{ ansible_user_id }}"
+    group: "admin"
+    mode: "0755"
+  become: yes
+
+- name: Check whether Homebrew is installed.
+  stat: path="{{ brew_prefix }}/bin/brew"
+  register: brew_check
+  changed_when: no
+
+- name: Install Homebrew.
+  shell: '/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"'
+  when: not brew_check.stat.exists
+
+# - name: Install git.
+#   shell: "{{ brew_prefix }}/bin/brew install git"
+
+#- name: "Adding Homebrew path to /User/{{ ansible_user_id }}/.bashrc."
+#  lineinfile:
+#    dest: "/User/{{ ansible_user_id }}/.bashrc"
+#    create: yes
+#    line: 'export PATH={{ brew_prefix }}/bin:$PATH'
+#    insertafter: 'EOF'
+#    regexp: 'export PATH={{ brew_prefix }}/bin:\$PATH'
+#    state: present
+
+- name: Update Homebrew.
+  shell: "{{ brew_prefix }}/bin/brew update"
+  register: brew_update_result
+  changed_when: "'Already up-to-date' not in brew_update_result.stdout"
+  when: brew_update
+
+- name: Check Homebrew doctor.
+  shell: "{{ brew_prefix }}/bin/brew doctor"
+  environment:
+    PATH: "/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+  register: brew_doctor_result
+  changed_when: "'Your system is ready to brew.' not in brew_doctor_result.stdout"
+  when: brew_doctor
+
+- name: Check Homebrew cask doctor.
+  shell: "{{ brew_prefix }}/bin/brew cask doctor"
+  environment:
+    PATH: "/usr/local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"
+  register: brew_cask_doctor_result
+  changed_when: "brew_cask_doctor_result.rc != 0"
+  when: brew_cask_doctor
+
+- name: Install Homebrew packages.
+  shell: "{{ brew_prefix }}/bin/brew install {{ item }}"
+  with_items: "{{ brew_install_packages }}"
+  when: brew_install_packages
+
+- name: Uninstall Homebrew packages.
+  shell: "{{ brew_prefix }}/bin/brew uninstall {{ item }}"
+  with_items: "{{ brew_uninstall_packages }}"
+  when: brew_uninstall_packages
+
+- name: Install Homebrew cask packages.
+  shell: "{{ brew_prefix }}/bin/brew cask install {{ item }}"
+  with_items: "{{ brew_cask_install_packages }}"
+  when: brew_cask_install_packages
+  become: yes
+
+- name: Uninstall Homebrew packages.
+  shell: "{{ brew_prefix }}/bin/brew cask uninstall {{ item }}"
+  with_items: "{{ brew_cask_uninstall_packages }}"
+  when: brew_cask_uninstall_packages
+  become: yes

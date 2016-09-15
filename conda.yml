@@ -1,0 +1,14 @@
+---
+
+- hosts: osx
+  remote_user: square
+  gather_facts: yes
+  vars:
+    conda_lsst_dest: "/Users/square/dev/conda-lsst"
+    conda_lsst_version: "tickets/DM-7340"
+    conda_lsst_build: "b2171"
+    conda_lsst_products: "lsst_distrib"
+    conda_lsst_old_swig: yes
+    conda_lsst_clean: no
+  roles:
+    - { role: conda }

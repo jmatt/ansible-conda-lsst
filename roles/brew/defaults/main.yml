@@ -1,0 +1,10 @@
+---
+
+brew_prefix: "/usr/local"
+brew_update: no
+brew_doctor: no
+brew_cask_doctor: no
+brew_install_packages: []
+brew_uninstall_packages: []
+brew_cask_install_packages: []
+brew_cask_uninstall_packages: []
